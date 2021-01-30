@@ -1,0 +1,10 @@
+cradle:
+  cabal:
+    - path: "./"
+      component: "lib:hih"
+
+    - path: "./Main.hs"
+      component: "hih:exe:hih"
+
+    - path: "./MyLib.hs"
+      component: "hih:exe:hih"
