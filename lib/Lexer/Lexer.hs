@@ -197,8 +197,8 @@ token = white <|> token'
 
             double'' :: Lex ([] Char)
             double'' =
-              (\whole dot decim -> whole ++ dot : (decim ++ "0"))
-                <$> some (satisfies isDigit)
+              (\whole dot decim -> '0' : whole ++ dot : (decim ++ "0"))
+                <$> many (satisfies isDigit)
                 <*> char '.'
                 <*> many (satisfies isDigit)
 
@@ -215,8 +215,8 @@ token = white <|> token'
 
             float'' :: Lex ([] Char)
             float'' =
-              (\whole dot decim -> whole ++ dot : (decim ++ "0"))
-                <$> some (satisfies isDigit)
+              (\whole dot decim -> '0' : whole ++ dot : (decim ++ "0"))
+                <$> many (satisfies isDigit)
                 <*> char '.'
                 <*> many (satisfies isDigit)
 
