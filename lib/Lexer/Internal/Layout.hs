@@ -18,10 +18,11 @@ import Lexer.Internal.Token (Tok (CloseBrace, Let, Of, OpenBrace, SemiColon, Whe
 import Relude (Bool (False, True), Eq, Int, Monoid (mempty), Ordering (EQ, GT, LT), Show, elem, error, otherwise, (.))
 import Relude.Applicative (Applicative)
 import Relude.Base (Ord (compare))
-import Relude.Function (($), (&), (>>>))
-import Relude.Functor (Functor, (<&>))
+import Relude.Container (fst)
+import Relude.Function (id, ($), (&), (>>>))
+import Relude.Functor (Functor, (<$>), (<&>))
 import Relude.List (drop, head, reverse)
-import Relude.Monad (Either (Left, Right), ExceptT, Maybe (Just, Nothing), Monad (return, (>>)), MonadState, State, runExceptT, runState)
+import Relude.Monad (Either (Left, Right), ExceptT, Maybe (Just, Nothing), Monad (return, (>>)), MonadState, State, either, runExceptT, runState)
 
 data Layout where
   Explicit :: Layout
@@ -76,14 +77,8 @@ compareIndent col =
     Just (Implicit col') -> compare col col'
     _ -> GT
 
-run :: LayoutM a -> Either Error ([] Tok)
-run =
-  _runLayoutM
-    >>> runExceptT
-    >>> (`runState` Layout' mempty mempty 0 False)
-    >>> \case
-      (Left e, _) -> Left e
-      (Right _, Layout' _ tkns _ _) -> Right (reverse tkns)
+run :: LayoutM ([] Tok) -> Either Error ([] Tok)
+run = fst . (`runState` Layout' mempty mempty 0 False) . runExceptT . _runLayoutM
 
 layout :: [] (Pos Tok) -> Either Error ([] Tok)
 layout ptks = run (go ptks)
@@ -110,7 +105,7 @@ layout ptks = run (go ptks)
             next
       where
         next :: LayoutM ([] Tok)
-        next = push ptkn >> go ptkns
+        next = (ptkn :) <$> go ptkns
 
         closeExplicitLayout :: LayoutM ()
         closeExplicitLayout = do

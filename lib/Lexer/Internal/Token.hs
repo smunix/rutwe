@@ -3,7 +3,7 @@
 -- | The kind of tokens we can Lex
 module Lexer.Internal.Token where
 
-import Relude (Bool, Eq, Int, Show, String)
+import Relude (Bool, Double, Eq, Float, Int32, Int64, Show, String, Word32, Word64)
 
 data Tok where
   Let ::
@@ -63,10 +63,13 @@ data Tok where
   List ::
     -- | `[]`
     Tok
+  Colon ::
+    -- | `:`
+    Tok
   SemiColon ::
     -- | `;`
     Tok
-  DoubleColon ::
+  ColonColon ::
     -- | `::`
     Tok
   MinusRAngle ::
@@ -126,16 +129,30 @@ data Tok where
   BarBar ::
     -- | `||`
     Tok
+  At ::
+    -- | `@`
+    Tok
   Amp ::
     -- | `&`
     Tok
   AmpAmp ::
     -- | `&&`
     Tok
-  Int :: Int -> Tok
+  Int32 :: Int32 -> Tok
+  Int64 :: Int64 -> Tok
+  Word32 :: Word32 -> Tok
+  Word64 :: Word64 -> Tok
+  Double :: Double -> Tok
+  Float :: Float -> Tok
   String :: String -> Tok
   Bool :: Bool -> Tok
-  IntTy :: Tok
+  CharTy :: Tok
+  Int32Ty :: Tok
+  Int64Ty :: Tok
+  Word32Ty :: Tok
+  Word64Ty :: Tok
+  FloatTy :: Tok
+  DoubleTy :: Tok
   StringTy :: Tok
   BoolTy :: Tok
   Upper :: String -> Tok
