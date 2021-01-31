@@ -1,10 +1,10 @@
 cradle:
   cabal:
-    - path: "./"
-      component: "lib:hih"
+    - path: "lib"
+      component: "lib:rutwe"
 
     - path: "./Main.hs"
-      component: "hih:exe:hih"
+      component: "rutwe:exe:rutwe"
 
     - path: "./MyLib.hs"
-      component: "hih:exe:hih"
+      component: "rutwe:exe:rutwe"

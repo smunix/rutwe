@@ -7,10 +7,10 @@
     eachSystem [ "x86_64-linux" ] (system:
       with (import nixpkgs { inherit system; }); {
         packages = flattenTree {
-          hih =
+          rutwe =
             with haskell.lib;
             with haskellPackages;
-            overrideCabal (callCabal2nix "hih" ./. {}) (_: {});
+            overrideCabal (callCabal2nix "rutwe" ./. {}) (_: {});
         };
       });
 }
