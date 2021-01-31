@@ -13,10 +13,12 @@ import Lexer.Internal.Token
       ( Amp,
         AmpAmp,
         Asterisk,
+        At,
         Blank,
         Bool,
         BoolTy,
         Case,
+        CharTy,
         CloseBrace,
         CloseBracket,
         CloseParen,
@@ -35,8 +37,10 @@ import Lexer.Internal.Token
         Float,
         If,
         In,
-        Int,
-        IntTy,
+        Int32,
+        Int32Ty,
+        Int64,
+        Int64Ty,
         LAngle,
         LAngleEq,
         Let,
@@ -59,7 +63,11 @@ import Lexer.Internal.Token
         Underscore,
         Unit,
         Upper,
-        Where
+        Where,
+        Word32,
+        Word32Ty,
+        Word64,
+        Word64Ty
       ),
   )
 import Relude
@@ -142,6 +150,7 @@ token = white <|> token'
           (ColonColon, "::"),
           (SemiColon, ";"),
           (Colon, ":"),
+          (At, "@"),
           (Eq, "="),
           (RAngle, ">"),
           (LAngle, "<"),
@@ -165,7 +174,15 @@ token = white <|> token'
         ]
 
     literal :: Lex (Tok, [] Char)
-    literal = int' <|> double' <|> float' <|> string' <|> bool'
+    literal =
+      int32'
+        <|> word32'
+        <|> int64'
+        <|> word64'
+        <|> double'
+        <|> float'
+        <|> string'
+        <|> bool'
       where
         double' :: Lex (Tok, [] Char)
         double' =
@@ -203,10 +220,56 @@ token = white <|> token'
                 <*> char '.'
                 <*> many (satisfies isDigit)
 
-        int' :: Lex (Tok, [] Char)
-        int' =
-          some (satisfies isDigit)
-            <&> (Int . read &&& id)
+        int32' :: Lex (Tok, [] Char)
+        int32' =
+          ( (:) <$> char '-' <*> int32''
+              <|> char '+' *> int32''
+              <|> int32''
+          )
+            <&> (Int32 . read &&& id)
+          where
+            int32'' :: Lex ([] Char)
+            int32'' = some (satisfies isDigit)
+
+        word32' :: Lex (Tok, [] Char)
+        word32' =
+          ( char '+' *> word32'u
+              <|> word32'u
+          )
+            <&> (Word32 . read &&& id)
+          where
+            word32'u :: Lex ([] Char)
+            word32'u = word32'' <|> word32'' <* (char 'u' <|> char 'U')
+
+            word32'' :: Lex ([] Char)
+            word32'' = some (satisfies isDigit)
+
+        int64' :: Lex (Tok, [] Char)
+        int64' =
+          ( (:) <$> char '-' <*> int64'l
+              <|> char '+' *> int64'l
+              <|> int64'l
+          )
+            <&> (Int64 . read &&& id)
+          where
+            int64'l :: Lex ([] Char)
+            int64'l = int64'' <|> int64'' <* (char 'l' <|> char 'L')
+
+            int64'' :: Lex ([] Char)
+            int64'' = some (satisfies isDigit)
+
+        word64' :: Lex (Tok, [] Char)
+        word64' =
+          ( char '+' *> word64'ul
+              <|> word64'ul
+          )
+            <&> (Word64 . read &&& id)
+          where
+            word64'ul :: Lex ([] Char)
+            word64'ul = word64'' <|> word64'' <* (string "ul" <|> string "UL")
+
+            word64'' :: Lex ([] Char)
+            word64'' = some (satisfies isDigit)
 
         string' :: Lex (Tok, [] Char)
         string' =
@@ -230,8 +293,19 @@ token = white <|> token'
         primTy :: Lex (Tok, [] Char)
         primTy =
           choices
-            [ (IntTy, "Int"),
+            [ (Int32Ty, "Int"),
+              (Int32Ty, "Int32"),
+              (Int32Ty, "I32"),
+              (Word32Ty, "Word"),
+              (Word32Ty, "Word32"),
+              (Word32Ty, "W32"),
+              (Int64Ty, "Long"),
+              (Int64Ty, "Int64"),
+              (Int64Ty, "I64"),
+              (Word64Ty, "Word64"),
+              (Word64Ty, "W64"),
               (StringTy, "String"),
+              (CharTy, "Char"),
               (BoolTy, "Bool")
             ]
         upperName :: Lex (Tok, [] Char)
