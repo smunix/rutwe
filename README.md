@@ -5,7 +5,7 @@ Inspired by some African (Burundi) jokes, `Rutwe` is a `Big Head`. It is meant t
 the arcanes of a fully-featured Functional Programming language inspired by Haskell. Contrary to what's in its name,
 you don't need a PhD to write your own compiler.
 
-I'll keep enriching this page with more information as I'm moving alone.
+I'll keep enriching this page with more information as I'm moving along.
 
 ## credits
 
