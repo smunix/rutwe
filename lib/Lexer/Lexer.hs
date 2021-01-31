@@ -25,12 +25,14 @@ import Lexer.Internal.Token
         Comment,
         Data,
         Dollar,
+        Double,
         Else,
         Eq,
         EqEq,
         EqRAngle,
         FSlash,
         FSlashEq,
+        Float,
         If,
         In,
         Int,
@@ -73,6 +75,7 @@ import Relude
     ($>),
     (&),
     (&&&),
+    (++),
     (.),
     (<$>),
     (<&>),
@@ -162,8 +165,44 @@ token = white <|> token'
         ]
 
     literal :: Lex (Tok, [] Char)
-    literal = int' <|> string' <|> bool'
+    literal = int' <|> double' <|> float' <|> string' <|> bool'
       where
+        double' :: Lex (Tok, [] Char)
+        double' =
+          ( (:) <$> char '-' <*> double'd
+              <|> (char '+' *> double'd)
+              <|> double'd
+          )
+            <&> (Double . read &&& id)
+          where
+            double'd :: Lex ([] Char)
+            double'd = double'' <|> double'' <* (char 'd' <|> char 'D')
+
+            double'' :: Lex ([] Char)
+            double'' =
+              (\whole dot decim -> whole ++ dot : (decim ++ "0"))
+                <$> some (satisfies isDigit)
+                <*> char '.'
+                <*> many (satisfies isDigit)
+
+        float' :: Lex (Tok, [] Char)
+        float' =
+          ( (:) <$> char '-' <*> float'd
+              <|> (char '+' *> float'd)
+              <|> float'd
+          )
+            <&> (Float . read &&& id)
+          where
+            float'd :: Lex ([] Char)
+            float'd = float'' <|> float'' <* (char 'f' <|> char 'F')
+
+            float'' :: Lex ([] Char)
+            float'' =
+              (\whole dot decim -> whole ++ dot : (decim ++ "0"))
+                <$> some (satisfies isDigit)
+                <*> char '.'
+                <*> many (satisfies isDigit)
+
         int' :: Lex (Tok, [] Char)
         int' =
           some (satisfies isDigit)
