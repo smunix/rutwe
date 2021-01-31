@@ -63,10 +63,13 @@ data Tok where
   List ::
     -- | `[]`
     Tok
+  Colon ::
+    -- | `:`
+    Tok
   SemiColon ::
     -- | `;`
     Tok
-  DoubleColon ::
+  ColonColon ::
     -- | `::`
     Tok
   MinusRAngle ::

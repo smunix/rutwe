@@ -2,11 +2,12 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 -- |
-module Lexer.Lexer (lexer) where
+module Lexer.Lexer (lexer, lexerPos, runLex) where
 
 import Data.Char (isAlphaNum, isDigit, isLower, isSpace, isUpper)
 import Lens.Micro.Platform (traversed)
-import Lexer.Internal.Lexer (Lex, char, oneOf, satisfies, string)
+import Lexer.Internal.Lexer (Lex, LexT (runLex), char, oneOf, satisfies, string)
+import Lexer.Internal.Position (Pos, with)
 import Lexer.Internal.Token
   ( Tok
       ( Amp,
@@ -19,17 +20,23 @@ import Lexer.Internal.Token
         CloseBrace,
         CloseBracket,
         CloseParen,
+        Colon,
+        ColonColon,
         Comment,
         Data,
         Dollar,
         Else,
         Eq,
+        EqEq,
+        EqRAngle,
         FSlash,
         FSlashEq,
         If,
         In,
         Int,
         IntTy,
+        LAngle,
+        LAngleEq,
         Let,
         List,
         Lower,
@@ -40,6 +47,9 @@ import Lexer.Internal.Token
         OpenBracket,
         OpenParen,
         Plus,
+        RAngle,
+        RAngleEq,
+        SemiColon,
         String,
         StringTy,
         Then,
@@ -126,6 +136,16 @@ token = white <|> token'
           (Unit, "()"),
           (AmpAmp, "&&"),
           (FSlashEq, "/="),
+          (ColonColon, "::"),
+          (SemiColon, ";"),
+          (Colon, ":"),
+          (Eq, "="),
+          (RAngle, ">"),
+          (LAngle, "<"),
+          (LAngleEq, "<="),
+          (RAngleEq, ">="),
+          (EqEq, "=="),
+          (EqRAngle, "=>"),
           (OpenParen, "("),
           (CloseParen, ")"),
           (OpenBrace, "{"),
@@ -186,3 +206,6 @@ token = white <|> token'
 
 lexer :: Lex ([] (Tok, [] Char))
 lexer = some token
+
+lexerPos :: Lex ([] (Pos Tok))
+lexerPos = lexer <&> with
